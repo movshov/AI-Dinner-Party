@@ -15,16 +15,18 @@ def column(matrix, i):
 #generate random matrix of matrix_length/2.
 def score(preference_matrix, table, matrix_length):
     total = 0
+    hosts = (matrix_length//2) - 1
+    guests = (matrix_length//2)
 
     #print(np.matrix(preference_matrix))
-    for z in range(matrix_length/2):
+    for z in range(matrix_length//2):
         x,y = table[:,z]
         #FOR TESTING PURPOSES
         #print(table)
         #print(x,y)
         total = total + preference_matrix[x][y] + preference_matrix[y][x]
         #Checks if person across is host to guest if so add 2 points. 
-        if (x <= 5 and y >= 6) or (y <= 5 and x >= 6):
+        if (x <= hosts and y >= guests) or (y <= hosts and x >= guests):
             total = total + 2
         #go until we reach last column
         a, t1 = np.shape(table)
@@ -32,10 +34,10 @@ def score(preference_matrix, table, matrix_length):
             #print('z is: ', z)
             w,v = table[:,z+1]
             total = total + preference_matrix[x][w] + preference_matrix[w][x]
-            if (x <= 5 and w >=6) or (w <= 5 and x >= 6):
+            if (x <= hosts and w >=guests) or (w <= hosts and x >= guests):
                 total = total + 1
             total = total + preference_matrix[y][v] + preference_matrix[v][y]
-            if (y <= 5 and v >=6) or (v <= 5 and y >= 6):
+            if (y <= hosts and v >=guests) or (v <= hosts and y >= guests):
                 total = total + 1
     #print('total is:', total) 
     return total
@@ -57,8 +59,10 @@ def main():
         t_end = time.time() + 60 * 1
         while time.time() < t_end:
             #generate a matrix of random integers from 0:9
-            table = np.random.choice(matrix_length,(2,matrix_length/2), replace=False)
+            table = np.random.choice(matrix_length,(2,matrix_length//2), replace=False)
             
+            #MANUAL ARRAY INPUT EXAMPLE
+            #table = np.array([[29,27,22,11,10,0,18,5,28,26,8,3,6,21,20],[19,2,16,23,13,24,14,12,15,1,25,17,4,7,9]])
             #prints a matrix of random integers. 
             #print(table)
             sum = score(preference_matrix, table, matrix_length)
