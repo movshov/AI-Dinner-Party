@@ -17,16 +17,26 @@ def score(preference_matrix, table, matrix_length):
     total = 0
 
     #print(np.matrix(preference_matrix))
-    #for z in range(len(table)):
-    #for z in table:
-    a = range(matrix_length/2)
-    for z in a:
-        #x,y = column(table, z)
-        #x,y = [row[column] for row in table]
+    for z in range(matrix_length/2):
         x,y = table[:,z]
+        #FOR TESTING PURPOSES
+        #print(table)
         #print(x,y)
         total = total + preference_matrix[x][y] + preference_matrix[y][x]
-    
+        #Checks if person across is host to guest if so add 2 points. 
+        if (x <= 5 and y >= 6) or (y <= 5 and x >= 6):
+            total = total + 2
+        #go until we reach last column
+        a, t1 = np.shape(table)
+        if z <= t1-2:
+            #print('z is: ', z)
+            w,v = table[:,z+1]
+            total = total + preference_matrix[x][w] + preference_matrix[w][x]
+            if (x <= 5 and w >=6) or (w <= 5 and x >= 6):
+                total = total + 1
+            total = total + preference_matrix[y][v] + preference_matrix[v][y]
+            if (y <= 5 and v >=6) or (v <= 5 and y >= 6):
+                total = total + 1
     #print('total is:', total) 
     return total
     
@@ -54,8 +64,13 @@ def main():
             sum = score(preference_matrix, table, matrix_length)
             if sum > high_score:
                 high_score = sum
+                print('current_high_score', high_score)
+                highest_table = np.copy(table)
 
+        print(np.matrix(preference_matrix))
         print('The highest score was: ', high_score)
+        print('The highest table is:')
+        print(highest_table)
     
     #for testing purposes.
     #print('matrix length: ', matrix_length)
