@@ -70,6 +70,7 @@ def main():
     #n = args.n
     solver = args.solver
     matrix = args.matrix
+    file = args.file
     if args.file == None:
         # Build a random puzzle.
         print("no input file detected")
@@ -79,15 +80,15 @@ def main():
     with open(args.file, 'r') as f:
         #grab first line of how many people.
         first_line = f.readline().rstrip('\n')  
+        #get the size of the table. 
         matrix_length = int(first_line)
-        #skip first line.
-        #next(f) 
         #read in preference_table into matrix. 
         preference_matrix = [[int(num) for num in line.split(" ")] for line in f]   
         #print(np.matrix(preference_matrix))
         
         high_score = 0
-        t_end = time.time() + 60 * 1
+        highest_table = np.zeros((2,matrix_length//2))
+        t_end = time.time() + 60 * 0.25
         while time.time() < t_end:
 
             #generate a matrix of random integers from 0:9
@@ -95,7 +96,11 @@ def main():
                 table = np.random.choice(matrix_length,(2,matrix_length//2), replace=False)
             #MANUAL ARRAY INPUT EXAMPLE
             elif matrix == "manual": 
-                table = np.array([[29,27,22,11,10,0,18,5,28,26,8,3,6,21,20],[19,2,16,23,13,24,14,12,15,1,25,17,4,7,9]])
+                if file != "hw1-inst1.txt":
+                    table = np.array([[29,27,22,11,10,0,18,5,28,26,8,3,6,21,20],[19,2,16,23,13,24,14,12,15,1,25,17,4,7,9]])
+                else:
+                    table = np.array([[4,8,5,9,2],[0,3,7,6,1]])
+                    #print('manual table is:',table)
 
             #prints a matrix of random integers. 
             #print(table)
