@@ -44,8 +44,39 @@ def score(preference_matrix, table, matrix_length):
     
 #grab data from file. 
 def main():
-     
-    with open(sys.argv[1], 'r') as f:
+    
+    parser = argparse.ArgumentParser(description='Generate best dinner table.')
+    parser.add_argument('--file', '-f', type=str, default=None, help='input file') 
+
+    solvers = {
+    "random",
+    #"walk",
+    #"bfs",
+    #"dfs",
+    #"dfid",
+    "astar"
+    }
+    parser.add_argument('--solver', '-s',
+                    type=str, choices=solvers,
+                    default="random", help='solver algorithm')
+    matrix = {
+    "random",
+    "manual"
+    }
+    parser.add_argument('--matrix', '-m',
+                    type=str, choices=matrix,
+                    default="random", help='test random or manual matrix')
+    args = parser.parse_args()
+    #n = args.n
+    solver = args.solver
+    matrix = args.matrix
+    if args.file == None:
+        # Build a random puzzle.
+        print("no input file detected")
+        return -1;
+
+    #with open(sys.argv[1], 'r') as f:
+    with open(args.file, 'r') as f:
         #grab first line of how many people.
         first_line = f.readline().rstrip('\n')  
         matrix_length = int(first_line)
@@ -58,11 +89,14 @@ def main():
         high_score = 0
         t_end = time.time() + 60 * 1
         while time.time() < t_end:
+
             #generate a matrix of random integers from 0:9
-            table = np.random.choice(matrix_length,(2,matrix_length//2), replace=False)
-            
+            if matrix == "random":
+                table = np.random.choice(matrix_length,(2,matrix_length//2), replace=False)
             #MANUAL ARRAY INPUT EXAMPLE
-            #table = np.array([[29,27,22,11,10,0,18,5,28,26,8,3,6,21,20],[19,2,16,23,13,24,14,12,15,1,25,17,4,7,9]])
+            elif matrix == "manual": 
+                table = np.array([[29,27,22,11,10,0,18,5,28,26,8,3,6,21,20],[19,2,16,23,13,24,14,12,15,1,25,17,4,7,9]])
+
             #prints a matrix of random integers. 
             #print(table)
             sum = score(preference_matrix, table, matrix_length)
