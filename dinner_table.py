@@ -1,16 +1,11 @@
 #solve dinner table problem HW#1 for Artificial Intelligence. 
 
 import argparse
-import functools
-import heapq 
 import random
 import numpy as np
 import sys
 import math
 import time
-
-def column(matrix, i):
-        return [row[i] for row in matrix]
 
 #generate random matrix of matrix_length/2.
 def score(preference_matrix, table, matrix_length):
@@ -41,6 +36,28 @@ def score(preference_matrix, table, matrix_length):
                 total = total + 1
     #print('total is:', total) 
     return total
+
+def highest_scores(preference_matrix, matrix_length):
+    highest_scores_table = np.zeros(matrix_length)
+    highest = 0
+    #print("matrix lenght is: ",matrix_length)
+    #traverse through entire preference_matrix
+    for z in range(matrix_length):
+        #print(z)
+        #
+        for i in range(matrix_length):
+            x = preference_matrix[z][i] + preference_matrix[i][z]
+            #print("x is: ", x)
+            #print("highest is: ", highest)
+            if x > highest:
+                highest = x
+            #we are at the end, input to final result table.
+            if i == matrix_length-1:
+                highest_scores_table[z] = highest
+                #reset highest
+                highest = 0
+
+    print("highest_scores_table is: ", highest_scores_table)
     
 #grab data from file. 
 def main():
@@ -58,14 +75,14 @@ def main():
     }
     parser.add_argument('--solver', '-s',
                     type=str, choices=solvers,
-                    default="random", help='solver algorithm')
+                    default="random", help='solver algorithm, random by default')
     matrix = {
     "random",
     "manual"
     }
     parser.add_argument('--matrix', '-m',
                     type=str, choices=matrix,
-                    default="random", help='test random or manual matrix')
+                    default="random", help='test random or manually inputed matrix hard codded, random by default')
     args = parser.parse_args()
     #n = args.n
     solver = args.solver
@@ -87,28 +104,35 @@ def main():
         #print(np.matrix(preference_matrix))
         
         high_score = 0
+        #generate the highest table as a 2 by (matrix_length/2) and initialize to zeros. 
         highest_table = np.zeros((2,matrix_length//2))
-        t_end = time.time() + 60 * 0.25
+        #determine how long to run the code for. 
+        t_end = time.time() + 60 * .001
+        #while we haven't hit the time limit keep going. 
         while time.time() < t_end:
 
             #generate a matrix of random integers from 0:9
             if matrix == "random":
+                #generate a random matrix.
                 table = np.random.choice(matrix_length,(2,matrix_length//2), replace=False)
             #MANUAL ARRAY INPUT EXAMPLE
             elif matrix == "manual": 
+                #if we are using hw1-inst2 or hw1-inst3 use this manually inputed matrix. 
                 if file != "hw1-inst1.txt":
                     table = np.array([[29,27,22,11,10,0,18,5,28,26,8,3,6,21,20],[19,2,16,23,13,24,14,12,15,1,25,17,4,7,9]])
                 else:
+                    #if we are using hw1-inst1 use this manually inputed matrix. 
                     table = np.array([[4,8,5,9,2],[0,3,7,6,1]])
-                    #print('manual table is:',table)
+            #print('manual table is:',table)
 
             #prints a matrix of random integers. 
             #print(table)
             sum = score(preference_matrix, table, matrix_length)
-            if sum > high_score:
+            if sum >= high_score:
                 high_score = sum
                 print('current_high_score', high_score)
                 highest_table = np.copy(table)
+                print(highest_table)
 
         print(np.matrix(preference_matrix))
         print('The highest score was: ', high_score)
@@ -118,6 +142,7 @@ def main():
     #for testing purposes.
     #print('matrix length: ', matrix_length)
     #print(preference_matrix)
+    highest_scores(preference_matrix, matrix_length)
     
 
 main()
