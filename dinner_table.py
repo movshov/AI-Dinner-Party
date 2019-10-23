@@ -19,7 +19,8 @@ def score_whole_table(preference_matrix, table, matrix_length):
         #FOR TESTING PURPOSES
         #print(table)
         #print(x,y)
-        total = total + preference_matrix[x][y] + preference_matrix[y][x]
+        total = total + preference_matrix[x][y]
+        total = total + preference_matrix[y][x]
         #Checks if person across is host to guest if so add 2 points. 
         if (x <= hosts and y >= guests) or (y <= hosts and x >= guests):
             total = total + 2
@@ -37,34 +38,59 @@ def score_whole_table(preference_matrix, table, matrix_length):
     #print('total is:', total) 
     return total
 
-def score(preference_matrix, table, matrix_length):
-    total = 0
-    hosts = (matrix_length//2) - 1
-    guests = (matrix_length//2)
+#calculate the best score between a node's neighbors. 
+def score(preference_matrix, table, matrix_length, highest_table, high_score):
+    best_score = high_score
+    best_table = np.copy(table)
+    temp = 0
+    starting = 0
+    halfway = 0
+    new_score = 0
+#grab score of table before swapping.  score = score_whole_table(preference_matrix, table, matrix_length)
 
+    #we want this to happpen twice. Once for top row, once for bottom.
     for z in range(matrix_length//2):
-        x,y = table[:,z]
-        #FOR TESTING PURPOSES
-        #print(table)
-        #print(x,y)
-        total = total + preference_matrix[x][y] + preference_matrix[y][x]
-        #Checks if person across is host to guest if so add 2 points. 
-        if (x <= hosts and y >= guests) or (y <= hosts and x >= guests):
-            total = total + 2
-        #go until we reach last column
-        a, t1 = np.shape(table)
-        if z <= t1-2:
-            #print('z is: ', z)
-            w,v = table[:,z+1]
-            total = total + preference_matrix[x][w] + preference_matrix[w][x]
-            if (x <= hosts and w >=guests) or (w <= hosts and x >= guests):
-                total = total + 1
-            total = total + preference_matrix[y][v] + preference_matrix[v][y]
-            if (y <= hosts and v >=guests) or (v <= hosts and y >= guests):
-                total = total + 1
-    #print('total is:', total) 
-    return total
+        if halfway < matrix_length//2:
+            halfway = halfway + 1
+        else:
+            #start on bottom row all the way left as starting index. 
+            starting = 1
+            halfway = halfway + 1
+        #row will give 0 then 1
+        for row in range(0,2):
+            for i in range(matrix_length//2):
+                #grab ith column. 
+                y = table[row,i]
+                #print("x and y are: ", x,y)
+                #old_table = np.copy(table)
+                old_table = table
+                #print("old table is", table)
+                #print("origin is:", table[row][z])
+                #print("x is: ", y)
+                temp = table[starting][z]
+                #print("temp is: ", temp)
+                table[starting][z] = y
+                table[row][i] = temp
+                #print("new table is: ", table)
+                #calculate score of whole table after swapping. 
+                new_score = score_whole_table(preference_matrix, table, matrix_length)
+                #check if new table has better score, if so keep it.
+                if new_score > best_score:
+                    print("new_score: ", new_score)
+                    print("best_score: ", best_score)
+                    best_score = new_score
+                    print("after best_score: ", best_score)
+                    best_table = table
+                    highest_table = best_table
+                    if best_score == 100:
+                        print("highest_table in score: ", best_table)
+                else:
+                    #reset table back to old version.
+                    table = old_table
 
+
+    #set the table to the best one we got. 
+    return best_score, best_table
 
 def highest_scores(preference_matrix, matrix_length):
     highest_scores_table = np.zeros(matrix_length)
@@ -73,7 +99,6 @@ def highest_scores(preference_matrix, matrix_length):
     #traverse through entire preference_matrix
     for z in range(matrix_length):
         #print(z)
-        #
         for i in range(matrix_length):
             x = preference_matrix[z][i] + preference_matrix[i][z]
             #print("x is: ", x)
@@ -86,20 +111,19 @@ def highest_scores(preference_matrix, matrix_length):
                 #reset highest
                 highest = 0
 
-    print("highest_scores_table is: ", highest_scores_table)
+    #print("highest_scores_table is: ", highest_scores_table)
     
 #grab data from file. 
 def main():
     
-    parser = argparse.ArgumentParser(description='Generate best dinner table.')
+    parser = argparse.ArgumentParser(description='Generate best dinner table.') 
     parser.add_argument('--file', '-f', type=str, default=None, help='input file') 
-
     solvers = {
     "random",
     #"walk",
     #"bfs",
     #"dfid",
-    "dfs"
+    "ids"
     }
     parser.add_argument('--solver', '-s',
                     type=str, choices=solvers,
@@ -132,10 +156,19 @@ def main():
         #print(np.matrix(preference_matrix))
         
         high_score = 0
-        #generate the highest table as a 2 by (matrix_length/2) and initialize to zeros. 
         highest_table = np.zeros((2,matrix_length//2))
+        ids_high_score = 0
+        ids_highest_table = np.zeros((2,matrix_length//2))
+        ids_table = np.zeros((2,matrix_length//2))
+        iterations = 0
+        repeats = 0
+        table = np.zeros((2,matrix_length//2))
+        #generate the highest table as a 2 by (matrix_length/2) and initialize to zeros. 
+        temp = np.zeros((2,matrix_length//2))
+
         #determine how long to run the code for. 
         t_end = time.time() + 60 * 1
+
         #while we haven't hit the time limit keep going. 
         while time.time() < t_end:
 
@@ -151,24 +184,29 @@ def main():
                         table = np.array([[29,27,22,11,10,0,18,5,28,26,8,3,6,21,20],[19,2,16,23,13,24,14,12,15,1,25,17,4,7,9]])
                     else:
                         #if we are using hw1-inst1 use this manually inputed matrix. 
-                        table = np.array([[0,3,8,9,2],[4,7,1,5,6]])
+                        table = np.array([[2,9,5,8,4],[1,6,7,3,0]])
                 #print('manual table is:',table)
 
                 #prints a matrix of random integers. 
                 #print(table)
                 sum = score_whole_table(preference_matrix, table, matrix_length) 
-                if sum >= high_score:
+                if sum > high_score:
                     high_score = sum
                     print('current_high_score', high_score)
-                    highest_table = np.copy(table)
+                    highest_table = table
                     print(highest_table)
 
-            elif solver == "dfs": 
+            elif solver == "ids": 
                 #print("running dfs")
                 #generate a matrix of random integers from 0:9
                 if matrix == "random":
-                    #generate a random matrix.
+                    #generate a random matrix.  if iterations == 0:
                     table = np.random.choice(matrix_length,(2,matrix_length//2), replace=False)
+
+                #make sure we don't get stuck.
+                elif iterations > 0 and repeats < 3:
+                    table = highest_table
+
                 #MANUAL ARRAY INPUT EXAMPLE
                 elif matrix == "manual": 
                     #if we are using hw1-inst2 or hw1-inst3 use this manually inputed matrix. 
@@ -176,30 +214,40 @@ def main():
                         table = np.array([[29,27,22,11,10,0,18,5,28,26,8,3,6,21,20],[19,2,16,23,13,24,14,12,15,1,25,17,4,7,9]])
                     else:
                         #if we are using hw1-inst1 use this manually inputed matrix. 
-                        table = np.array([[0,3,8,9,2],[4,7,1,5,6]])
+                        table = np.array([[2,3,0,9,6],[7,5,8,4,1]])
                 #print('manual table is:',table)
                 #will generate a random array from range 0..matrix_length with no duplicates.
-                people = random.sample(range(0,matrix_length),matrix_length)
-                starting_choice = random.choice(people)
+                #people = random.sample(range(0,matrix_length),matrix_length)
+                #starting_choice = random.choice(people)
                 #generate a 2d matrix with all zeros. 
-                dfs_table = np.zeros((2,matrix_length//2))
+                #dfs_table = np.zeros((2,matrix_length//2))
                 #set [0,0] in dfs_table to be our starting_choice.
-                dfs_table[0,0] = starting_choice
+                #dfs_table[0,0] = starting_choice
                 #will remove the number "starting_choice" from the array.
-                print("dfs_table is: ", dfs_table)
-                people.remove(starting_choice)
+                #print("dfs_table is: ", dfs_table)
+                #people.remove(starting_choice)
                 #print("people: ", people)
+                sum, ids_table = score(preference_matrix, table, matrix_length, highest_table, ids_high_score)
+                iterations = iterations + 1
+                if sum > ids_high_score:
+                    ids_high_score = sum
+                    ids_highest_table = ids_table
+                    print('current_high_score', ids_high_score)
+                    print(ids_highest_table)
+                elif sum == high_score:
+                    repeats = repeats + 1
+                    
 
 
-        print(np.matrix(preference_matrix))
-        print('The highest score was: ', high_score)
-        print('The highest table is:')
-        print(highest_table)
+        #print(np.matrix(preference_matrix))
+        print(preference_matrix)
+        print('The highest score was: ', ids_high_score)
+        print('The highest table is:', ids_highest_table)
     
     #for testing purposes.
     #print('matrix length: ', matrix_length)
     #print(preference_matrix)
-    highest_scores(preference_matrix, matrix_length)
+    #highest_scores(preference_matrix, matrix_length)
     
 
 main()
