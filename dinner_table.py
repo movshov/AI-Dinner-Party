@@ -39,25 +39,24 @@ def score_whole_table(preference_matrix, table, matrix_length):
     return total
 
 #calculate the best score between a node's neighbors. 
-def score(preference_matrix, table, matrix_length, highest_table, high_score):
-    best_score = high_score
-    best_table = np.copy(table)
+def score(preference_matrix, table, matrix_length, temp_highest_table):
+    best_score = 0
+    best_table = np.zeros((2,matrix_length//2))
     temp = 0
     starting = 0
     halfway = 0
-    new_score = 0
+    #new_score = 0
 #grab score of table before swapping.  score = score_whole_table(preference_matrix, table, matrix_length)
 
     #we want this to happpen twice. Once for top row, once for bottom.
-    for z in range(matrix_length//2):
-        if halfway < matrix_length//2:
+    for z in range(matrix_length//2): 
+        if halfway < matrix_length//2: 
             halfway = halfway + 1
         else:
             #start on bottom row all the way left as starting index. 
             starting = 1
             halfway = halfway + 1
-        #row will give 0 then 1
-        for row in range(0,2):
+        #row will give 0 then 1 for row in range(0,2):
             for i in range(matrix_length//2):
                 #grab ith column. 
                 y = table[row,i]
@@ -76,21 +75,19 @@ def score(preference_matrix, table, matrix_length, highest_table, high_score):
                 new_score = score_whole_table(preference_matrix, table, matrix_length)
                 #check if new table has better score, if so keep it.
                 if new_score > best_score:
-                    print("new_score: ", new_score)
-                    print("best_score: ", best_score)
+                    #print("new_score: ", new_score)
+                    #print("best_score: ", best_score)
                     best_score = new_score
-                    print("after best_score: ", best_score)
-                    best_table = table
-                    highest_table = best_table
+                    #print("after best_score: ", best_score)
+                    temp_highest_table = np.copy(table)
                     if best_score == 100:
-                        print("highest_table in score: ", best_table)
-                else:
+                        print("highest_table in score: ", temp_highest_table)
+                elif new_score < best_score:
                     #reset table back to old version.
                     table = old_table
 
-
-    #set the table to the best one we got. 
-    return best_score, best_table
+    temp_highest_table = np.copy(best_table)
+    return best_score
 
 def highest_scores(preference_matrix, matrix_length):
     highest_scores_table = np.zeros(matrix_length)
@@ -160,9 +157,9 @@ def main():
         ids_high_score = 0
         ids_highest_table = np.zeros((2,matrix_length//2))
         ids_table = np.zeros((2,matrix_length//2))
+        temp_highest_table = np.zeros((2,matrix_length//2))
         iterations = 0
         repeats = 0
-        table = np.zeros((2,matrix_length//2))
         #generate the highest table as a 2 by (matrix_length/2) and initialize to zeros. 
         temp = np.zeros((2,matrix_length//2))
 
@@ -205,7 +202,7 @@ def main():
 
                 #make sure we don't get stuck.
                 elif iterations > 0 and repeats < 3:
-                    table = highest_table
+                    table = ids_highest_table
 
                 #MANUAL ARRAY INPUT EXAMPLE
                 elif matrix == "manual": 
@@ -227,14 +224,68 @@ def main():
                 #print("dfs_table is: ", dfs_table)
                 #people.remove(starting_choice)
                 #print("people: ", people)
-                sum, ids_table = score(preference_matrix, table, matrix_length, highest_table, ids_high_score)
+###################################################################################################################################        
+                best_score = 0
+                best_table = np.zeros((2,matrix_length//2))
+                temp = 0
+                starting = 0
+                halfway = 0
+                #grab score of table before swapping.  
+                score = score_whole_table(preference_matrix, table, matrix_length)
+
+                #we want this to happpen twice. Once for top row, once for bottom.
+                for z in range(matrix_length//2): 
+                    if halfway < matrix_length//2: 
+                        halfway = halfway + 1
+                    else:
+                        #start on bottom row all the way left as starting index. 
+                        starting = 1
+                        halfway = halfway + 1
+                        #row will give 0 then 1
+                    for row in range(0,2):
+                        for i in range(matrix_length//2):
+                            #grab ith column. 
+                            y = table[row,i]
+                            #print("x and y are: ", x,y)
+                            #old_table = np.copy(table)
+                            old_table = table
+                            #print("old table is", table)
+                            #print("origin is:", table[row][z])
+                            #print("x is: ", y)
+                            temp = table[starting][z]
+                            #print("temp is: ", temp)
+                            table[starting][z] = y
+                            table[row][i] = temp
+                            #print("new table is: ", table)
+                            #calculate score of whole table after swapping. 
+                            new_score = score_whole_table(preference_matrix, table, matrix_length)
+                            #check if new table has better score, if so keep it.
+
+                            if new_score > best_score:
+                                #print("new_score: ", new_score)
+                                #print("best_score: ", best_score)
+                                best_score = new_score
+                                #print("after best_score: ", best_score)
+                                temp_highest_table = np.copy(table)
+
+                                #if best_score == 100:
+                                    #print("highest_table: ", temp_highest_table)
+
+                            elif new_score < best_score:
+                                #reset table back to old version.
+                                table = old_table
+
+
+                #sum = score(preference_matrix, table, matrix_length, temp_highest_table)
                 iterations = iterations + 1
-                if sum > ids_high_score:
-                    ids_high_score = sum
-                    ids_highest_table = ids_table
+                if best_score > ids_high_score:
+                    ids_high_score = best_score
+                    ids_highest_table = np.copy(temp_highest_table)
+                    #print("temp_highest_table is: ", temp_highest_table)
                     print('current_high_score', ids_high_score)
-                    print(ids_highest_table)
-                elif sum == high_score:
+                    print("highest table so far: ", temp_highest_table)
+                    #print("ids_highest_table is: ", ids_highest_table)
+                elif best_score == high_score:
                     repeats = repeats + 1
                     
 
