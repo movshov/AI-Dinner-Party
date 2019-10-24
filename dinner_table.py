@@ -9,7 +9,7 @@ import time
 
 #calculate the score for a whole table.
 def score_whole_table(preference_matrix, table, matrix_length):
-    total = 0
+    total = 0 
     hosts = (matrix_length//2) - 1
     guests = (matrix_length//2)
 
@@ -201,20 +201,22 @@ def main():
                     table = np.random.choice(matrix_length,(2,matrix_length//2), replace=False)
 
                 #make sure we don't get stuck.
-                elif iterations > 0 and repeats < 3:
-                    table = ids_highest_table
+                #elif iterations > 0 and repeats < 3:
+                #    table = ids_highest_table
 
                 #MANUAL ARRAY INPUT EXAMPLE
                 elif matrix == "manual": 
-                    #if we are using hw1-inst2 or hw1-inst3 use this manually inputed matrix. 
-                    if file != "hw1-inst1.txt":
+                    #we are testing file #3.
+                    if file == "hw1-inst3.txt":
+                        table = np.array([[7,16,3,15,0,18,4,21,22,28,17,12,26,20,1],[27,14,8,25,19,10,23,2,29,11,5,24,13,9,6]])
+                    #we are testing file #2
+                    elif file == "hw1-inst2.txt":
                         table = np.array([[29,27,22,11,10,0,18,5,28,26,8,3,6,21,20],[19,2,16,23,13,24,14,12,15,1,25,17,4,7,9]])
-                    else:
+                    #we are testing file #1
+                    elif file == "hw1-inst1.txt":
                         #if we are using hw1-inst1 use this manually inputed matrix. 
                         table = np.array([[2,3,0,9,6],[7,5,8,4,1]])
-                #print('manual table is:',table)
-                #will generate a random array from range 0..matrix_length with no duplicates.
-                #people = random.sample(range(0,matrix_length),matrix_length)
+                #print('manual table is:',table) #will generate a random array from range 0..matrix_length with no duplicates.  #people = random.sample(range(0,matrix_length),matrix_length)
                 #starting_choice = random.choice(people)
                 #generate a 2d matrix with all zeros. 
                 #dfs_table = np.zeros((2,matrix_length//2))
@@ -230,6 +232,7 @@ def main():
                 temp = 0
                 starting = 0
                 halfway = 0
+                old_score = 0
                 #grab score of table before swapping.  
                 score = score_whole_table(preference_matrix, table, matrix_length)
 
@@ -248,7 +251,8 @@ def main():
                             y = table[row,i]
                             #print("x and y are: ", x,y)
                             #old_table = np.copy(table)
-                            old_table = table
+                            old_table = np.copy(table)
+                            old_score = score_whole_table(preference_matrix,table,matrix_length) 
                             #print("old table is", table)
                             #print("origin is:", table[row][z])
                             #print("x is: ", y)
@@ -261,39 +265,39 @@ def main():
                             new_score = score_whole_table(preference_matrix, table, matrix_length)
                             #check if new table has better score, if so keep it.
 
-                            if new_score > best_score:
+                            if new_score >= best_score:
                                 #print("new_score: ", new_score)
                                 #print("best_score: ", best_score)
                                 best_score = new_score
                                 #print("after best_score: ", best_score)
                                 temp_highest_table = np.copy(table)
-
-                                #if best_score == 100:
-                                    #print("highest_table: ", temp_highest_table)
-
-                            elif new_score < best_score:
+                            elif new_score < old_score:
                                 #reset table back to old version.
-                                table = old_table
-
-
-                #sum = score(preference_matrix, table, matrix_length, temp_highest_table)
-                iterations = iterations + 1
+                                table = np.copy(old_table)
+##################################################################################################################
+                #iterations = iterations + 1
                 if best_score > ids_high_score:
                     ids_high_score = best_score
                     ids_highest_table = np.copy(temp_highest_table)
-                    #print("temp_highest_table is: ", temp_highest_table)
                     print('current_high_score', ids_high_score)
-                    print("highest table so far: ", temp_highest_table)
-                    #print("ids_highest_table is: ", ids_highest_table)
-                elif best_score == high_score:
-                    repeats = repeats + 1
+                    print("highest table so far: ")
+                    for rows in range(0,2):
+                        for t in range(matrix_length//2):
+                            temp_highest_table[rows][t] = temp_highest_table[rows][t] + 1
+                    print(np.matrix(temp_highest_table))
+                #elif best_score == high_score:
+                    #repeats = repeats + 1
                     
+        for rows in range(0,2):
+            for t in range(matrix_length//2):
+                ids_highest_table[rows][t] = ids_highest_table[rows][t] + 1
 
 
         #print(np.matrix(preference_matrix))
         print(preference_matrix)
-        print('The highest score was: ', ids_high_score)
-        print('The highest table is:', ids_highest_table)
+        print("The highest score was: ", ids_high_score)
+        print("The highest table is:")
+        print(np.matrix(ids_highest_table))
     
     #for testing purposes.
     #print('matrix length: ', matrix_length)
