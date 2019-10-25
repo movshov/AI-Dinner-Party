@@ -164,7 +164,7 @@ def main():
         temp = np.zeros((2,matrix_length//2))
 
         #determine how long to run the code for. 
-        t_end = time.time() + 60 * 1
+        t_end = time.time() + 60 * 0.1
 
         #while we haven't hit the time limit keep going. 
         while time.time() < t_end:
@@ -216,7 +216,9 @@ def main():
                     elif file == "hw1-inst1.txt":
                         #if we are using hw1-inst1 use this manually inputed matrix. 
                         table = np.array([[2,3,0,9,6],[7,5,8,4,1]])
-                #print('manual table is:',table) #will generate a random array from range 0..matrix_length with no duplicates.  #people = random.sample(range(0,matrix_length),matrix_length)
+                #print('manual table is:',table) 
+                #will generate a random array from range 0..matrix_length with no duplicates.  
+                #people = random.sample(range(0,matrix_length),matrix_length)
                 #starting_choice = random.choice(people)
                 #generate a 2d matrix with all zeros. 
                 #dfs_table = np.zeros((2,matrix_length//2))
@@ -298,7 +300,25 @@ def main():
         print("The highest score was: ", ids_high_score)
         print("The highest table is:")
         print(np.matrix(ids_highest_table))
-    
+
+
+        #create save file if using hw1-inst3.txt
+        if file == "hw1-inst3.txt":
+            #first earse the file contents.
+            save = open("hw1-inst3-RESULT.txt", "w")
+            save.close()
+
+            with open("hw1-inst3-RESULT.txt", "w") as f:
+                f.write(str(ids_high_score) + "\n")
+                f.write(np.array2string(ids_highest_table))
+
+        #create save file if using hw1-inst2.txt
+        elif file == "hw1-inst2.txt":
+            save = open("hw1-inst2-RESULT.txt", "w")
+        #create save file if using hw1-inst1.txt
+        elif file == "hw1-inst1.txt":
+            save = open("hw1-inst1-RESULT.txt", "w")
+                        
     #for testing purposes.
     #print('matrix length: ', matrix_length)
     #print(preference_matrix)
