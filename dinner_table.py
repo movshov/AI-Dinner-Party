@@ -66,7 +66,7 @@ def highest_scores(preference_matrix, matrix_length):
     
 def main():
     
-    parser = argparse.ArgumentParser(description='Generate best dinner table.') 
+    parser = argparse.ArgumentParser(description='Generate best dinner table based off of preference_matrix.') 
     parser.add_argument('--file', '-f', type=str, default=None, help='input file') 
 
     solvers = {
@@ -75,14 +75,14 @@ def main():
     }
     parser.add_argument('--solver', '-s',
                         type=str, choices=solvers,
-                        default="local", help='solver algorithm, random by default')
+                        default="local", help='solver algorithm, local search by default')
     matrix = {
     "random",
     "manual"
     }
     parser.add_argument('--matrix', '-m',
                         type=str, choices=matrix,
-                        default="random", help='test random or manually inputed matrix hard codded, random by default')
+                        default="random", help='test random or manually inputed starting matrix(hard codded), random starting matrix used by default')
 
     args = parser.parse_args()
     solver = args.solver
