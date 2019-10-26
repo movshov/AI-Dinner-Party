@@ -41,57 +41,8 @@ def score_whole_table(preference_matrix, table, matrix_length):
     #print('total is:', total) 
     return total
 
-#calculate the best score between a node's neighbors. 
-def score(preference_matrix, table, matrix_length, temp_highest_table):
-    best_score = 0
-    best_table = np.zeros((2,matrix_length//2))
-    temp = 0
-    starting = 0
-    halfway = 0
-    #new_score = 0
-#grab score of table before swapping.  score = score_whole_table(preference_matrix, table, matrix_length)
-
-    #we want this to happpen twice. Once for top row, once for bottom.
-    for z in range(matrix_length//2): 
-        if halfway < matrix_length//2: 
-            halfway = halfway + 1
-        else:
-            #start on bottom row all the way left as starting index. 
-            starting = 1
-            halfway = halfway + 1
-        #row will give 0 then 1 for row in range(0,2):
-            for i in range(matrix_length//2):
-                #grab ith column. 
-                y = table[row,i]
-                #print("x and y are: ", x,y)
-                #old_table = np.copy(table)
-                old_table = table
-                #print("old table is", table)
-                #print("origin is:", table[row][z])
-                #print("x is: ", y)
-                temp = table[starting][z]
-                #print("temp is: ", temp)
-                table[starting][z] = y
-                table[row][i] = temp
-                #print("new table is: ", table)
-                #calculate score of whole table after swapping. 
-                new_score = score_whole_table(preference_matrix, table, matrix_length)
-                #check if new table has better score, if so keep it.
-                if new_score > best_score:
-                    #print("new_score: ", new_score)
-                    #print("best_score: ", best_score)
-                    best_score = new_score
-                    #print("after best_score: ", best_score)
-                    temp_highest_table = np.copy(table)
-                    if best_score == 100:
-                        print("highest_table in score: ", temp_highest_table)
-                elif new_score < best_score:
-                    #reset table back to old version.
-                    table = old_table
-
-    temp_highest_table = np.copy(best_table)
-    return best_score
-
+#TEST FUNCTION
+#used to generate the highest scores possible from the preference matrix.
 def highest_scores(preference_matrix, matrix_length):
     highest_scores_table = np.zeros(matrix_length)
     highest = 0
@@ -113,35 +64,31 @@ def highest_scores(preference_matrix, matrix_length):
 
     #print("highest_scores_table is: ", highest_scores_table)
     
-#grab data from file. 
 def main():
     
     parser = argparse.ArgumentParser(description='Generate best dinner table.') 
     parser.add_argument('--file', '-f', type=str, default=None, help='input file') 
+
     solvers = {
     "random",
-    #"walk",
-    #"bfs",
-    #"dfid",
     "local"
     }
     parser.add_argument('--solver', '-s',
-                    type=str, choices=solvers,
-                    default="local", help='solver algorithm, random by default')
+                        type=str, choices=solvers,
+                        default="local", help='solver algorithm, random by default')
     matrix = {
     "random",
     "manual"
     }
     parser.add_argument('--matrix', '-m',
-                    type=str, choices=matrix,
-                    default="random", help='test random or manually inputed matrix hard codded, random by default')
+                        type=str, choices=matrix,
+                        default="random", help='test random or manually inputed matrix hard codded, random by default')
+
     args = parser.parse_args()
-    #n = args.n
     solver = args.solver
     matrix = args.matrix
     file = args.file
     if args.file == None:
-        # Build a random puzzle.
         print("no input file detected")
         return -1;
 
@@ -167,7 +114,8 @@ def main():
         temp = np.zeros((2,matrix_length//2))
 
         #determine how long to run the code for. 
-        t_end = time.time() + 60 * 0.1
+        #TESTING: change the minutes(number on right)
+        t_end = time.time() + 60 * 1
 
         #while we haven't hit the time limit keep going. 
         while time.time() < t_end:
@@ -185,7 +133,6 @@ def main():
                     else:
                         #if we are using hw1-inst1 use this manually inputed matrix. 
                         table = np.array([[2,9,5,8,4],[1,6,7,3,0]])
-                #print('manual table is:',table)
 
                 #grab the score of the table. 
                 sum = score_whole_table(preference_matrix, table, matrix_length) 
@@ -259,9 +206,13 @@ def main():
                                 #reset table back to old version.
                                 table = np.copy(old_table)
 ##################################################################################################################
+                #if new score is higher than old highest_score
                 if best_score > ids_high_score:
+                    #update highest_score.
                     ids_high_score = best_score
+                    #copy highest_score's table
                     ids_highest_table = np.copy(temp_highest_table)
+                    #display new highest score and table.
                     print('current_high_score', ids_high_score)
                     print("highest table so far: ")
                     for rows in range(0,2):
@@ -275,6 +226,7 @@ def main():
                 ids_highest_table[rows][t] = ids_highest_table[rows][t] + 1
 
 
+        #TESTING: Can uncomment to see preference_matrix
         #print(np.matrix(preference_matrix))
         print(preference_matrix)
         print("The highest score was: ", ids_high_score)
@@ -301,14 +253,43 @@ def save_results(file, high_score, final_table, matrix_length):
                         f.write(str((t+1) + matrix_length//2) + '\n')
 
 
+            #write whole array to table. 
             #f.write(np.array2string(final_table))
 
     #create save file if using hw1-inst2.txt
     elif file == "hw1-inst2.txt":
-         save = open("hw1-inst2-RESULT.txt", "w")
+        #first earse the file contents.
+        save = open("hw1-inst2-RESULT.txt", "w")
+        save.close()
+
+        with open("hw1-inst2-RESULT.txt", "w") as f:
+            f.write(str(high_score) + "\n")
+            for rows in range(0,2):
+                for t in range(matrix_length//2):
+                    if rows == 0:
+                        f.write(str(final_table[rows][t]) + ' ')
+                        f.write(str(t+1) + '\n')
+                    elif rows == 1: 
+                        f.write(str(final_table[rows][t]) + ' ')
+                        f.write(str((t+1) + matrix_length//2) + '\n')
+
     #create save file if using hw1-inst1.txt
     elif file == "hw1-inst1.txt":
+        #first earse the file contents.
         save = open("hw1-inst1-RESULT.txt", "w")
+        save.close()
+
+        with open("hw1-inst1-RESULT.txt", "w") as f:
+            f.write(str(high_score) + "\n")
+            for rows in range(0,2):
+                for t in range(matrix_length//2):
+                    if rows == 0:
+                        f.write(str(final_table[rows][t]) + ' ')
+                        f.write(str(t+1) + '\n')
+                    elif rows == 1: 
+                        f.write(str(final_table[rows][t]) + ' ')
+                        f.write(str((t+1) + matrix_length//2) + '\n')
+
                         
     #for testing purposes.
     #print('matrix length: ', matrix_length)
