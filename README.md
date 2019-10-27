@@ -1,6 +1,6 @@
-Bar Movshovich
-CS541 AI
-https://github.com/movshov/AI-Dinner-Party
+Bar Movshovich <\br>
+CS541 AI <\br>
+https://github.com/movshov/AI-Dinner-Party <\br>
 
 # Dinner Party
 Solve a dinner party dilemma where we need to generate a table based on a preference matrix of how much person "a" likes or despises person "b". 
