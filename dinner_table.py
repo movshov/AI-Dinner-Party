@@ -83,14 +83,18 @@ def main():
     parser.add_argument('--matrix', '-m',
                         type=str, choices=matrix,
                         default="random", help='test random or manually inputed starting matrix(hard codded), random starting matrix used by default')
+    parser.add_argument('--repeats', '-r', type=int, default="0", help='set a repeat counter for how long we work using the same matrix before shuffling')
+
 
     args = parser.parse_args()
     solver = args.solver
     matrix = args.matrix
-    file = args.file
+    repeats = args.repeats
     if args.file == None:
         print("no input file detected")
-        return -1;
+        return -1
+    else:
+        file = args.file
 
     #with open(sys.argv[1], 'r') as f:
     with open(args.file, 'r') as f:
@@ -109,7 +113,7 @@ def main():
         ids_table = np.zeros((2,matrix_length//2))
         temp_highest_table = np.zeros((2,matrix_length//2))
         iterations = 0
-        repeats = 0
+        repeat = 0
         #generate the highest table as a 2 by (matrix_length/2) and initialize to zeros. 
         temp = np.zeros((2,matrix_length//2))
 
@@ -145,8 +149,14 @@ def main():
 
             elif solver == "local": 
                 if matrix == "random":
-                    #generate a random matrix.
-                    table = np.random.choice(matrix_length,(2,matrix_length//2), replace=False)
+                    #generate a random matrix for initial.
+                    if repeat == 0: 
+                        table = np.random.choice(matrix_length,(2,matrix_length//2), replace=False)
+                    #we have hit the repeat limit, reset the table. 
+                    elif repeat >= repeats:
+                        #print('we are resetting the table' + '\n')
+                        table = np.random.choice(matrix_length,(2,matrix_length//2), replace=False)
+                        repeat = 0
 
                 #MANUAL ARRAY INPUTS FOR TESTING
                 elif matrix == "manual": 
@@ -205,6 +215,7 @@ def main():
                             elif new_score < old_score:
                                 #reset table back to old version.
                                 table = np.copy(old_table)
+                                repeat = repeat + 1
 ##################################################################################################################
                 #if new score is higher than old highest_score
                 if best_score > ids_high_score:
