@@ -1,7 +1,6 @@
-Bar Movshovich
-CS541 AI
-https://github.com/movshov/AI-Dinner-Party
-
+Bar Movshovich  
+CS541  
+https://github.com/movshov/AI-Dinner-Party  
 # Dinner Party
 Solve a dinner party dilemma where we need to generate a table based on a preference matrix of how much person "a" likes or despises person "b". 
 
@@ -66,4 +65,4 @@ If you wish to test a seating arrangement that you think might be optimal, you c
 python3 dinner_table.py -f hw1-inst1.txt -m manual
 ```
 # Algorithm
-I ended up using a local search approach with a heuristic to solving this problem. What I did was I set an anchor at row zero and column zero [0][0]. Then I calculated the total score of the table. Next I swapped the person at [0][0] with the person to the right [0][1] and once again calculated the score of the table. If the new score is higher then the previous score save the table as the new best table else if the new score is lower then the previous score revert the table back to what it was before swapping. I then do this again but with the next right index from the one I just used. Once i've hit the last column and checked the scores, I then increment the row by 1 and start again using the same anchor until i've hit the last column again. Once that happens I then increment the anchor once to the right and repeat the process all over again at index [0][0]. I then repeat this same process for every index of the table. I've calcualted that this approach will give me between O(n^2) and O(nLOG(n)) time complexity. This is about what I expected this approach to give me. Since i'm not using a complete state search like branch and bound i'm not always guaranteed to get the best solution. This local search approach with a heuristic will always give me a good estimate but will not always give me the best solution.   
+I ended up using a local search approach with a heuristic to solving this problem. What I did was I set an anchor at row zero and column zero [0][0]. Then I calculated the total score of the table. Next I swapped the person at [0][0] with the person to the right [0][1] and once again calculated the score of the table. If the new score is higher then the previous score save the table as the new best table else if the new score is lower then the previous score revert the table back to what it was before swapping. I then do this again but with the next right index from the one I just used. Once i've hit the last column and checked the scores, I then increment the row by 1 and start again using the same anchor until i've hit the last column again. Once that happens I then increment the anchor once to the right and repeat the process all over again at index [0][0]. I then repeat this same process for every index of the table. I've calcualted that this approach will give me between O(n^2) and O(nLOG(n)) time complexity. This is about what I expected this approach to give me. Since i'm not using a complete state search like branch and bound i'm not always guaranteed to get the best solution. This local search approach with a heuristic will always give me a good estimate but will not always give me the best solution.      
